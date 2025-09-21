@@ -20,3 +20,31 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION}}
+    
+  test:
+    needs: 
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull Docker Image
+        run: make build-image-pull
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION}}
+      
+      - name: Start Docker containers
+        run: make up
+
+      - name: Test Migrations
+        run: make build-image-migrate
+        env:
+          GOOSE_DRIVER: postgres
+          GOOSE_DBSTRING: postgresql://postgres:password@localhost:5432/postgres?sslmode=disable
+
+      - name: Stop Docker containers
+        if: always()
+        run: make down
