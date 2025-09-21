@@ -3,7 +3,7 @@ AWS_ACCOUNT_ID := 235494794794
 AWS_DEFAULT_REGION := ap-southeast-1
 AWS_ECR_DOMAIN := $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_DEFAULT_REGION).amazonaws.com
 GIT_SHA := $(shell git rev-parse HEAD)
-BUILD_IMAGE := $(AWS_ECR_DOMAIN)/fem-fd-service-preview
+BUILD_IMAGE := $(AWS_ECR_DOMAIN)/fem-fd-service
 BUILD_TAG := $(if $(BUILD_TAG),$(BUILD_TAG),latest)
 DOCKERIZE_HOST := $(shell echo $(GOOSE_DBSTRING) | cut -d "@" -f 2 | cut -d ":" -f 1)
 DOCKERIZE_URL := tcp://$(if $(DOCKERIZE_HOST),$(DOCKERIZE_HOST):5432,localhost:5432)
@@ -17,11 +17,13 @@ build-image:
 		--platform "linux/amd64" \
 		--tag "$(BUILD_IMAGE):$(GIT_SHA)-build" \
 		--target "build" \
+		--load \
 		.
 	docker buildx build \
 		--cache-from "$(BUILD_IMAGE):$(GIT_SHA)-build" \
 		--platform "linux/amd64" \
 		--tag "$(BUILD_IMAGE):$(GIT_SHA)" \
+		--load \
 		.
 
 build-image-login:
