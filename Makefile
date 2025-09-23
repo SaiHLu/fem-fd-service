@@ -77,6 +77,12 @@ build-image-promote:
 	docker image tag $(BUILD_IMAGE):$(GIT_SHA) $(BUILD_IMAGE):$(BUILD_TAG)
 	docker image push $(BUILD_IMAGE):$(BUILD_TAG)
 
+build-image-save:
+	docker image save $(BUILD_IMAGE):$(GIT_SHA) > /tmp/docker-image.tar
+
+build-image-load:
+	docker image load < /tmp/docker-image.tar
+
 down:
 	docker compose down --remove-orphans --volumes
 
