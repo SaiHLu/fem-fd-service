@@ -16,15 +16,6 @@ jobs:
       - name: Build Docker image
         run: make build-image
       
-      - name: Save Docker image
-        run: make build-image-save
-      
-      - name: Cache Docker image
-        uses: actions/cache/save@v3
-        with:
-          path: /tmp/docker-image.tar
-          key: docker-image-${{ github.sha }}
-      
       - name: Push Image
         run: make build-image-push
         env:
@@ -40,15 +31,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore Docker image from cache
-        uses: actions/cache/restore@v3
-        with:
-          path: /tmp/docker-image.tar
-          key: docker-image-${{ github.sha }}
-          fail-on-cache-miss: true
-      
-      - name: Load Docker image
-        run: make build-image-load
+      - name: Pull Docker Image
+        run: make build-image-pull
       
       - name: Start Docker containers
         run: make up
@@ -83,15 +67,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore Docker image from cache
-        uses: actions/cache/restore@v3
-        with:
-          path: /tmp/docker-image.tar
-          key: docker-image-${{ github.sha }}
-          fail-on-cache-miss: true
-      
-      - name: Load Docker image
-        run: make build-image-load
+      - name: Pull Docker Image
+        run: make build-image-pull
 
       - name: Database Migrations
         run: make build-image-migrate
